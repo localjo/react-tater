@@ -19,7 +19,14 @@ const Tooltip = styled.div`
   left: calc(100% + 10px);
 `;
 
-const Marker = ({ x, y, id, message, setMessage, removeMarker }) => {
+const Marker = ({
+  xPercent,
+  yPercent,
+  id,
+  message,
+  setMessage,
+  removeMarker
+}) => {
   const [mode, setMode] = useState('hide');
   const [toolTip, setTooltip] = useState(message);
   const isEdit = mode === 'edit';
@@ -28,7 +35,7 @@ const Marker = ({ x, y, id, message, setMessage, removeMarker }) => {
   const tooltipRef = React.createRef();
   return (
     <Mark
-      style={{ top: `${y}%`, left: `${x}%` }}
+      style={{ top: `${yPercent}%`, left: `${xPercent}%` }}
       onMouseEnter={() => {
         if (isHide) setMode('view');
       }}

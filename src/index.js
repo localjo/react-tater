@@ -74,11 +74,11 @@ const Tater = ({ children: child, options }) => {
       }
     }
   };
-  const addMarker = ({ x, y }) => {
+  const addMarker = ({ xPercent, yPercent }) => {
     const newId =
       markerList.length > 0 ? Math.max.apply(Math, markerList) + 1 : 1;
     const newMarkers = { ...markers };
-    newMarkers[newId] = { x, y };
+    newMarkers[newId] = { xPercent, yPercent };
     setMarkers(newMarkers);
   };
   const setMessage = ({ message, id }) => {
