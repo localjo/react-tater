@@ -31,34 +31,41 @@ const getBox = function({ x, y, height, width, space }) {
   };
 };
 
-export const findSafePosition = function(marker, container, others, depth = 0) {
-  console.log(depth);
-  const { height, width } = container;
-  const { x, y, space } = marker;
-  const top = height * (y / 100);
-  const left = width * (x / 100);
+export const findSafePosition = function(
+  coordinates,
+  grid,
+  markers,
+  depth = 0
+) {
+  const { height, width, space, left, top } = grid;
+  const { x, y } = coordinates;
+  const marker = {
+    x: ((x - left) / width) * 100,
+    y: ((y - top) / height) * 100
+  }
+  const markerTop = height * (marker.y / 100);
+  const markerLeft = width * (marker.x / 100);
   const newMarker = { ...marker };
-  if (left + space > width) {
+  if (markerLeft + space > width) {
     newMarker.x = ((width - space) / width) * 100;
   }
-  if (top + space > height) {
+  if (markerTop + space > height) {
     newMarker.y = ((height - space) / height) * 100;
   }
   const markerBox = getBox({
     ...newMarker,
-    ...container
+    ...grid
   });
-  const adjustments = others
+  const adjustments = markers
     .map(m => {
       const box = getBox({
         ...m,
-        ...container,
+        ...grid,
         space: marker.space
       });
       return detectCollision(markerBox, box);
     })
     .filter(n => n);
-  console.log({ adjustments });
   if (adjustments.length > 0) {
     const percentX = adjustments[0].x ? (adjustments[0].x / width) * 100 : 0;
     const percentY = adjustments[0].y ? (adjustments[0].y / height) * 100 : 0;
@@ -69,7 +76,7 @@ export const findSafePosition = function(marker, container, others, depth = 0) {
     };
     depth += 1;
     return depth < 3
-      ? findSafePosition(adjustedMarker, container, others, depth)
+      ? findSafePosition(adjustedMarker, grid, markers, depth)
       : false;
   }
   return { x: newMarker.x, y: newMarker.y };

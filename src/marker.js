@@ -7,6 +7,7 @@ const Mark = styled.div`
   background: red;
   display: block;
   position: absolute;
+  z-index: 2;
 `;
 
 const Tooltip = styled.div`
