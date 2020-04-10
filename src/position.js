@@ -1,9 +1,9 @@
 export const detectCollision = function(a, b) {
   const isCollision = !(
-    a.top > b.bottom ||
-    a.right < b.left ||
-    a.bottom < b.top ||
-    a.left > b.right
+    a.top >= b.bottom ||
+    a.right <= b.left ||
+    a.bottom <= b.top ||
+    a.left >= b.right
   );
   return isCollision;
 };
