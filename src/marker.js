@@ -7,6 +7,7 @@ const Mark = styled.div`
   background: red;
   display: block;
   position: absolute;
+  transform: translateX(-50%) translateY(-50%);
   z-index: 2;
 `;
 
