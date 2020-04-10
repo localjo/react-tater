@@ -17,9 +17,7 @@ const useGrid = (space) => {
   const measureGrid = () => {
     const { height, width, left, top } =
       ref && ref.current ? ref.current.getBoundingClientRect() : {};
-    const rows = Math.floor(height / space);
-    const cols = Math.floor(width / space);
-    return setGrid({ height, width, left, top, space, rows, cols });
+    return setGrid({ height, width, left, top, space });
   };
 
   useEffect(() => {
@@ -47,7 +45,7 @@ const Tater = ({ children: child, options }) => {
     position: relative;
     ${gridVisible
       ? `&:after {
-      content: "${grid.cols}x${grid.rows}";
+      content: "Grid size: ${grid.space}";
       position: absolute;
       top: 0;
       bottom: 0;
