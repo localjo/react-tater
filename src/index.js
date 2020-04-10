@@ -97,6 +97,7 @@ const Tater = ({ children: child, options }) => {
           <Marker
             key={id}
             id={id}
+            space={space}
             {...markers[id]}
             setMessage={(msg) => setMessage(msg)}
             removeMarker={(id) => removeMarker(id)}
