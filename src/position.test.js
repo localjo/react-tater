@@ -1,4 +1,12 @@
-import { detectCollision, getBox, coordinatesToPercent } from './position.js';
+import {
+  detectCollision,
+  getBox,
+  coordinatesToPercent,
+  getNearbyPoints,
+  snapToGrid,
+  gridToPercent,
+  gridToPixels
+} from './position.js';
 
 describe('detectCollision', () => {
   const box1 = {
@@ -77,5 +85,108 @@ describe('coordinatesToPercent', () => {
         }
       )
     ).toStrictEqual({ xPercent: 50, yPercent: 50 });
+  });
+});
+
+describe('snapToGrid', () => {
+  it('finds the nearest grid point from a set of percent coordinates', () => {
+    const coordinates = { xPercent: 49, yPercent: 49 };
+    const grid = {
+      height: 100,
+      width: 100,
+      space: 10
+    };
+    expect(snapToGrid(coordinates, grid)).toEqual({ gridX: 5, gridY: 5 });
+  });
+  it('finds the nearest grid point from a set of percent coordinates', () => {
+    const coordinates = { xPercent: 63, yPercent: 12 };
+    const grid = {
+      height: 500,
+      width: 500,
+      space: 10
+    };
+    expect(snapToGrid(coordinates, grid)).toEqual({ gridX: 32, gridY: 6 });
+  });
+});
+
+describe('gridToPercent', () => {
+  it('gets percent coordinates from grid point', () => {
+    const coordinates = { gridX: 3, gridY: 6 };
+    const grid = {
+      height: 100,
+      width: 100,
+      space: 10
+    };
+    expect(gridToPercent(coordinates, grid)).toEqual({
+      xPercent: 30,
+      yPercent: 60
+    });
+  });
+});
+
+describe('gridToPixels', () => {
+  it('gets percent coordinates from grid point', () => {
+    const coordinates = { gridX: 3, gridY: 6 };
+    const grid = {
+      height: 100,
+      width: 100,
+      space: 10,
+      left: 100,
+      top: 100
+    };
+    expect(gridToPixels(coordinates, grid)).toEqual({
+      x: 130,
+      y: 160
+    });
+  });
+});
+
+describe('getNearbyPoints', () => {
+  it('returns 24 nearby points', () => {
+    const coordinates = { x: 150, y: 150 };
+    const grid = {
+      height: 100,
+      width: 100,
+      space: 10,
+      left: 100,
+      top: 100
+    };
+    expect(getNearbyPoints(coordinates, grid).length).toEqual(24);
+  });
+  it('returns points sorted by distance from origin', () => {
+    const coordinates = { x: 150, y: 150 };
+    const grid = {
+      height: 100,
+      width: 100,
+      space: 10,
+      left: 100,
+      top: 100
+    };
+    expect(getNearbyPoints(coordinates, grid)).toStrictEqual([
+      { x: 150, y: 140 },
+      { x: 140, y: 150 },
+      { x: 160, y: 150 },
+      { x: 150, y: 160 },
+      { x: 140, y: 140 },
+      { x: 160, y: 140 },
+      { x: 140, y: 160 },
+      { x: 160, y: 160 },
+      { x: 150, y: 130 },
+      { x: 130, y: 150 },
+      { x: 170, y: 150 },
+      { x: 150, y: 170 },
+      { x: 140, y: 130 },
+      { x: 160, y: 130 },
+      { x: 130, y: 140 },
+      { x: 170, y: 140 },
+      { x: 130, y: 160 },
+      { x: 170, y: 160 },
+      { x: 140, y: 170 },
+      { x: 160, y: 170 },
+      { x: 130, y: 130 },
+      { x: 170, y: 130 },
+      { x: 130, y: 170 },
+      { x: 170, y: 170 }
+    ]);
   });
 });
