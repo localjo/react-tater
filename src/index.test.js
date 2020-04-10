@@ -1,7 +1,7 @@
-import { ExampleComponent } from '.'
+import Tater from './index.js';
 
-describe('ExampleComponent', () => {
+describe('Tater', () => {
   it('is truthy', () => {
-    expect(ExampleComponent).toBeTruthy()
-  })
-})
+    expect(Tater).toBeTruthy();
+  });
+});

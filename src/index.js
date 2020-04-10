@@ -1,8 +1,8 @@
-import React, { useState, useEffect, useRef } from "react";
-import styled from "styled-components";
-import useLocalStorage from "./useLocalStorage";
-import Marker from "./marker";
-import { findSafePosition } from "./position";
+import React, { useState, useEffect, useRef } from 'react';
+import styled from 'styled-components';
+import useLocalStorage from './useLocalStorage';
+import Marker from './marker';
+import { findSafePosition } from './position';
 
 const TaterFrame = styled.div`
   outline: 2px dotted green;
@@ -10,7 +10,7 @@ const TaterFrame = styled.div`
   position: relative;
 `;
 
-const useGrid = space => {
+const useGrid = (space) => {
   const ref = useRef();
   const [grid, setGrid] = useState({});
 
@@ -24,8 +24,8 @@ const useGrid = space => {
 
   useEffect(() => {
     measureGrid();
-    window.addEventListener("resize", measureGrid);
-    return () => window.removeEventListener("resize", measureGrid);
+    window.addEventListener('resize', measureGrid);
+    return () => window.removeEventListener('resize', measureGrid);
   }, []);
 
   return [grid, ref];
@@ -33,7 +33,7 @@ const useGrid = space => {
 
 const Tater = ({ children: child, options }) => {
   if (Array.isArray(child)) {
-    throw new Error("Tater only supports wrapping a single element");
+    throw new Error('Tater only supports wrapping a single element');
   }
   const { name, space = 15 } = options;
   const ns = name || child.type.displayName;
@@ -60,7 +60,7 @@ const Tater = ({ children: child, options }) => {
     }`
       : ``}
   `;
-  const handleClick = e => {
+  const handleClick = (e) => {
     const isChildClick = gridWrapper.current.contains(e.target);
     if (isChildClick) {
       const click = { x: e.clientX, y: e.clientY };
@@ -86,22 +86,22 @@ const Tater = ({ children: child, options }) => {
     newMarkers[id].message = message;
     setMarkers(newMarkers);
   };
-  const removeMarker = id => {
+  const removeMarker = (id) => {
     const newMarkers = { ...markers };
     delete newMarkers[id];
     setMarkers(newMarkers);
   };
 
   return (
-    <TaterFrame onClick={e => handleClick(e)}>
-      {markerList.map(id => {
+    <TaterFrame onClick={(e) => handleClick(e)}>
+      {markerList.map((id) => {
         return (
           <Marker
             key={id}
             id={id}
             {...markers[id]}
-            setMessage={msg => setMessage(msg)}
-            removeMarker={id => removeMarker(id)}
+            setMessage={(msg) => setMessage(msg)}
+            removeMarker={(id) => removeMarker(id)}
           />
         );
       })}

@@ -1,5 +1,5 @@
-import React, { useState } from "react";
-import styled from "styled-components";
+import React, { useState } from 'react';
+import styled from 'styled-components';
 
 const Mark = styled.div`
   height: 10px;
@@ -20,31 +20,31 @@ const Tooltip = styled.div`
 `;
 
 const Marker = ({ x, y, id, message, setMessage, removeMarker }) => {
-  const [mode, setMode] = useState("hide");
+  const [mode, setMode] = useState('hide');
   const [toolTip, setTooltip] = useState(message);
-  const isEdit = mode === "edit";
-  const isView = mode === "view";
-  const isHide = mode === "hide";
+  const isEdit = mode === 'edit';
+  const isView = mode === 'view';
+  const isHide = mode === 'hide';
   const tooltipRef = React.createRef();
   return (
     <Mark
       style={{ top: `${y}%`, left: `${x}%` }}
       onMouseEnter={() => {
-        if (isHide) setMode("view");
+        if (isHide) setMode('view');
       }}
-      onClick={e => {
+      onClick={(e) => {
         const hasTooltip = tooltipRef && tooltipRef.current;
         const isTooltip = hasTooltip && tooltipRef.current.contains(e.target);
         if (isView) {
-          setMode("edit");
+          setMode('edit');
         } else if (!isTooltip) {
           setMessage({ message: toolTip, id });
-          setMode("view");
+          setMode('view');
         }
       }}
       onMouseLeave={() => {
-        if (mode === "view") {
-          setMode("hide");
+        if (mode === 'view') {
+          setMode('hide');
         }
       }}
     >
@@ -53,13 +53,13 @@ const Marker = ({ x, y, id, message, setMessage, removeMarker }) => {
           <textarea
             placeholder="Add a note..."
             value={toolTip}
-            onChange={e => setTooltip(e.target.value)}
+            onChange={(e) => setTooltip(e.target.value)}
           />
           <button onClick={() => removeMarker(id)}>Remove</button>
         </Tooltip>
       ) : isView ? (
         <Tooltip>
-          <p>{toolTip || "Click on marker to edit"}</p>
+          <p>{toolTip || 'Click on marker to edit'}</p>
         </Tooltip>
       ) : null}
     </Mark>
