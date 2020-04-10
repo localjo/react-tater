@@ -52,8 +52,7 @@ export const getNearbyPoints = function(coordinates, grid) {
           const [x, y] = cell;
           const xNearby = x >= gridX - 2 && x <= gridX + 2;
           const yNearby = y >= gridY - 2 && y <= gridY + 2;
-          const isOrigin = y === gridY && x === gridX;
-          return xNearby && yNearby && !isOrigin ? true : false;
+          return xNearby && yNearby ? true : false;
         });
     })
     .flat()

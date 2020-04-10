@@ -151,7 +151,7 @@ describe('getNearbyPoints', () => {
       left: 100,
       top: 100
     };
-    expect(getNearbyPoints(coordinates, grid).length).toEqual(24);
+    expect(getNearbyPoints(coordinates, grid).length).toEqual(25);
   });
   it('returns points sorted by distance from origin', () => {
     const coordinates = { x: 150, y: 150 };
@@ -163,6 +163,7 @@ describe('getNearbyPoints', () => {
       top: 100
     };
     expect(getNearbyPoints(coordinates, grid)).toStrictEqual([
+      { x: 150, y: 150 },
       { x: 150, y: 140 },
       { x: 140, y: 150 },
       { x: 160, y: 150 },
