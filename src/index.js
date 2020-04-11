@@ -5,7 +5,6 @@ import Marker from './marker';
 import { findSafePosition } from './position';
 
 const TaterFrame = styled.div`
-  outline: 2px dotted green;
   display: inline-block;
   position: relative;
 `;
@@ -29,7 +28,7 @@ const useGrid = (space) => {
   return [grid, ref];
 };
 
-const Tater = ({ children: child, options }) => {
+const Tater = ({ children: child, options = {} }) => {
   if (Array.isArray(child)) {
     throw new Error('Tater only supports wrapping a single element');
   }
@@ -41,7 +40,6 @@ const Tater = ({ children: child, options }) => {
   const [grid, gridWrapper] = useGrid(space);
   const markerList = Object.keys(markers);
   const TaterGrid = styled.div`
-    outline: 2px dotted red;
     position: relative;
     ${gridVisible
       ? `&:after {
