@@ -59,10 +59,14 @@ const Tater = ({ children: child, options = {} }) => {
   const handleClick = (e) => {
     const isChildClick = gridWrapper.current.contains(e.target);
     if (isChildClick) {
-      const click = { x: e.clientX, y: e.clientY };
-      const position = findSafePosition(click, grid, Object.values(markers));
+      const coordinates = { x: e.clientX, y: e.clientY };
+      const position = findSafePosition(
+        coordinates,
+        grid,
+        Object.values(markers)
+      );
       if (position) {
-        addMarker({ ...position, open: true });
+        addMarker(position);
       } else {
         window.alert(
           "There's no room for an annotation here, try another spot."
@@ -70,11 +74,31 @@ const Tater = ({ children: child, options = {} }) => {
       }
     }
   };
+  const handleDrop = (e) => {
+    e.preventDefault();
+    const id = parseInt(e.dataTransfer.getData('application/tater'), 10);
+    const coordinates = { x: e.clientX, y: e.clientY };
+    const position = findSafePosition(
+      coordinates,
+      grid,
+      Object.values(markers)
+    );
+    if (position) {
+      setMarkerPosition(id, position);
+    } else {
+      window.alert("There's no room for an annotation here, try another spot.");
+    }
+  };
   const addMarker = ({ xPercent, yPercent }) => {
     const newId =
       markerList.length > 0 ? Math.max.apply(Math, markerList) + 1 : 1;
     const newMarkers = { ...markers };
     newMarkers[newId] = { xPercent, yPercent };
+    setMarkers(newMarkers);
+  };
+  const setMarkerPosition = (id, coords) => {
+    const newMarkers = { ...markers };
+    newMarkers[id] = { ...newMarkers[id], ...coords };
     setMarkers(newMarkers);
   };
   const setMessage = ({ message, id }) => {
@@ -94,7 +118,11 @@ const Tater = ({ children: child, options = {} }) => {
   };
 
   return (
-    <TaterFrame onClick={(e) => handleClick(e)}>
+    <TaterFrame
+      onClick={(e) => handleClick(e)}
+      onDrop={(e) => handleDrop(e)}
+      onDragOver={(e) => e.preventDefault()} // Needed to enable drag and drop
+    >
       {markerList.map((id) => {
         return (
           <Marker

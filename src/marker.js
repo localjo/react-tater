@@ -11,6 +11,7 @@ const Mark = styled.div`
   font-family: 'Helvetica', sans-serif;
   font-size: 14px;
   text-align: left;
+  cursor: grab;
   &:hover {
     z-index: 3;
   }
@@ -107,6 +108,7 @@ const Marker = ({
   }, [toolTip, isEdit]);
   return (
     <Mark
+      draggable={true}
       style={{
         top: `${yPercent}%`,
         left: `${xPercent}%`,
@@ -115,6 +117,10 @@ const Marker = ({
         ...(isEdit || isShowing
           ? { zIndex: 3, borderRadius: '5px 0 0 5px' }
           : {})
+      }}
+      onDragStart={(e) => {
+        e.dataTransfer.dropEffect = 'move';
+        e.dataTransfer.setData('application/tater', id);
       }}
       onMouseEnter={() => {
         if (isHide) setMode('view');
