@@ -26,7 +26,7 @@ const Icon = styled.div`
   left: 0;
   right: 0;
   pointer-events: none;
-  text-selection: none;
+  user-select: none;
 `;
 
 const Tooltip = styled.div`
@@ -56,6 +56,8 @@ const Tooltip = styled.div`
     background: rgba(255, 255, 255, 0.2);
     width: calc(100% - 4px);
     resize: none;
+    pointer-events: auto;
+    user-select: auto;
   }
   .toolbar {
     display: flex;
@@ -100,6 +102,7 @@ const Marker = ({
 }) => {
   const [mode, setMode] = useState('hide');
   const [toolTip, setTooltip] = useState(message);
+  const [isDraggable, toggleDraggable] = useState(true);
   const isEdit = mode === 'edit';
   const isView = mode === 'view';
   const isHide = mode === 'hide';
@@ -112,12 +115,13 @@ const Marker = ({
       textFieldRef.current.style.height = '0px';
       const scrollHeight = textFieldRef.current.scrollHeight;
       textFieldRef.current.style.height = scrollHeight + 'px';
+      textFieldRef.current.focus();
     }
   }, [toolTip, isEdit]);
   const iconCharacter = String.fromCodePoint(...icon);
   return (
     <Mark
-      draggable={true}
+      draggable={isDraggable}
       style={{
         top: `${yPercent}%`,
         left: `${xPercent}%`,
@@ -152,6 +156,8 @@ const Marker = ({
             ref={textFieldRef}
             placeholder="Add a note..."
             value={toolTip}
+            onFocus={(e) => toggleDraggable(false)}
+            onBlur={(e) => toggleDraggable(true)}
             onChange={(e) => setTooltip(e.target.value)}
           />
           <div className="toolbar">
@@ -210,6 +216,7 @@ const Marker = ({
           <p style={{ textAlign: 'center', cursor: 'pointer' }}>
             {emojis.map((emoji) => (
               <span
+                key={emoji.name}
                 onClick={(e) => {
                   setMarkerIcon(id, emoji.code);
                 }}
