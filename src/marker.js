@@ -1,10 +1,9 @@
 import React, { useState, useRef, useEffect } from 'react';
 import styled from 'styled-components';
+import emojis from './emojis';
 
 const Mark = styled.div`
   display: block;
-  background: rgb(0, 0, 0, 0.3);
-  border-radius: 5px;
   position: absolute;
   transform: translateX(-50%) translateY(-50%);
   z-index: 2;
@@ -18,6 +17,7 @@ const Mark = styled.div`
 `;
 
 const Icon = styled.div`
+  font-family: Apple Color Emoji, sans-serif;
   text-align: center;
   display: block;
   position: absolute;
@@ -31,7 +31,7 @@ const Icon = styled.div`
 
 const Tooltip = styled.div`
   background: rgb(0, 0, 0, 0.7);
-  border-radius: 0px 5px 5px 5px;
+  border-radius: 5px;
   min-width: 180px;
   padding: 10px;
   display: block;
@@ -63,6 +63,11 @@ const Tooltip = styled.div`
     align-items: stretch;
     width: 100%;
   }
+  .emoji {
+    font-family: Apple Color Emoji, sans-serif;
+    display: inline-block;
+    margin: 1px;
+  }
 `;
 
 const Button = styled.button`
@@ -85,8 +90,10 @@ const Marker = ({
   yPercent,
   space,
   id,
+  icon = emojis[0].code,
   message,
   setMessage,
+  setMarkerIcon,
   removeMarker,
   pinned,
   togglePin
@@ -96,6 +103,7 @@ const Marker = ({
   const isEdit = mode === 'edit';
   const isView = mode === 'view';
   const isHide = mode === 'hide';
+  const isIconPicker = mode === 'icon';
   const isShowing = isView || (isHide && pinned);
   const tooltipRef = useRef();
   const textFieldRef = useRef();
@@ -106,6 +114,7 @@ const Marker = ({
       textFieldRef.current.style.height = scrollHeight + 'px';
     }
   }, [toolTip, isEdit]);
+  const iconCharacter = String.fromCodePoint(...icon);
   return (
     <Mark
       draggable={true}
@@ -114,9 +123,7 @@ const Marker = ({
         left: `${xPercent}%`,
         height: `${space}px`,
         width: `${space}px`,
-        ...(isEdit || isShowing
-          ? { zIndex: 3, borderRadius: '5px 0 0 5px' }
-          : {})
+        ...(isEdit || isShowing ? { zIndex: 3 } : {})
       }}
       onDragStart={(e) => {
         e.dataTransfer.dropEffect = 'move';
@@ -126,14 +133,21 @@ const Marker = ({
         if (isHide) setMode('view');
       }}
       onMouseLeave={() => {
-        if (mode === 'view') {
-          setMode('hide');
-        }
+        if (isView) setMode('hide');
+      }}
+      onClick={(e) => {
+        setMode(isIconPicker ? 'hide' : 'icon');
+        e.stopPropagation();
       }}
     >
-      <Icon style={{ fontSize: `${space - 4}px` }}>&#x1F954;</Icon>
+      <Icon style={{ fontSize: `${space - 4}px` }}>{iconCharacter}</Icon>
       {isEdit ? (
-        <Tooltip ref={tooltipRef}>
+        <Tooltip
+          ref={tooltipRef}
+          onClick={(e) => {
+            e.stopPropagation();
+          }}
+        >
           <textarea
             ref={textFieldRef}
             placeholder="Add a note..."
@@ -142,36 +156,70 @@ const Marker = ({
           />
           <div className="toolbar">
             <Button
-              onClick={() => {
+              onClick={(e) => {
                 setMessage({ message: toolTip, id });
                 setMode('view');
+                e.stopPropagation();
               }}
             >
               Save
             </Button>
             <Button
-              onClick={() => {
+              onClick={(e) => {
                 setTooltip(message);
                 setMode('view');
+                e.stopPropagation();
               }}
             >
               Cancel
             </Button>
-            <Button onClick={() => togglePin(id)}>
+            <Button
+              onClick={(e) => {
+                togglePin(id);
+                e.stopPropagation();
+              }}
+            >
               {pinned ? 'Unpin' : 'Pin'}
             </Button>
-            <Button onClick={() => removeMarker(id)}>Remove</Button>
+            <Button
+              onClick={(e) => {
+                removeMarker(id);
+                e.stopPropagation();
+              }}
+            >
+              Remove
+            </Button>
           </div>
         </Tooltip>
       ) : isShowing ? (
         <Tooltip
           onClick={(e) => {
-            if (isView) {
-              setMode('edit');
-            }
+            setMode('edit');
+            e.stopPropagation();
           }}
         >
           <p>{toolTip || 'Click on this message to edit'}</p>
+        </Tooltip>
+      ) : isIconPicker ? (
+        <Tooltip
+          onClick={(e) => {
+            setMode('hide');
+            e.stopPropagation();
+          }}
+        >
+          <p style={{ textAlign: 'center', cursor: 'pointer' }}>
+            {emojis.map((emoji) => (
+              <span
+                onClick={(e) => {
+                  setMarkerIcon(id, emoji.code);
+                }}
+                className="emoji"
+                style={{ fontSize: `${space - 4}px` }}
+              >
+                {String.fromCodePoint(...emoji.code)}
+              </span>
+            ))}
+          </p>
         </Tooltip>
       ) : null}
     </Mark>

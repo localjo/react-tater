@@ -93,12 +93,17 @@ const Tater = ({ children: child, options = {} }) => {
     const newId =
       markerList.length > 0 ? Math.max.apply(Math, markerList) + 1 : 1;
     const newMarkers = { ...markers };
-    newMarkers[newId] = { xPercent, yPercent };
+    newMarkers[newId] = { xPercent, yPercent, icon: [0x1f954] };
     setMarkers(newMarkers);
   };
   const setMarkerPosition = (id, coords) => {
     const newMarkers = { ...markers };
     newMarkers[id] = { ...newMarkers[id], ...coords };
+    setMarkers(newMarkers);
+  };
+  const setMarkerIcon = (id, icon) => {
+    const newMarkers = { ...markers };
+    newMarkers[id] = { ...newMarkers[id], icon };
     setMarkers(newMarkers);
   };
   const setMessage = ({ message, id }) => {
@@ -131,6 +136,7 @@ const Tater = ({ children: child, options = {} }) => {
             space={space}
             {...markers[id]}
             setMessage={(msg) => setMessage(msg)}
+            setMarkerIcon={(id, icon) => setMarkerIcon(id, icon)}
             removeMarker={(id) => removeMarker(id)}
             togglePin={(id) => togglePin(id)}
           />
