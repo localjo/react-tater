@@ -1,11 +1,10 @@
-import React, { useState } from 'react';
+import React, { useState, useRef, useEffect } from 'react';
 import styled from 'styled-components';
 
 const Mark = styled.div`
   display: block;
   background: rgb(0, 0, 0, 0.3);
-  border-radius: 3px;
-  border: 1px solid rgba(0, 0, 0, 0.6);
+  border-radius: 5px;
   position: absolute;
   transform: translateX(-50%) translateY(-50%);
   z-index: 2;
@@ -30,20 +29,21 @@ const Icon = styled.div`
 `;
 
 const Tooltip = styled.div`
-  background: rgb(0, 0, 0, 0.9);
-  border-radius: 3px;
-  border: 1px solid rgba(0, 0, 0, 1);
-  min-width: 150px;
+  background: rgb(0, 0, 0, 0.7);
+  border-radius: 0px 5px 5px 5px;
+  min-width: 180px;
   padding: 10px;
   display: block;
   position: absolute;
   top: 0;
-  left: calc(100% + 10px);
+  left: 100%;
   color: rgb(255, 255, 255);
+  cursor: default;
   p {
     margin: 2px;
     margin-top: 3px;
     display: block;
+    cursor: text;
   }
   textarea {
     font-family: 'Helvetica', sans-serif;
@@ -51,9 +51,31 @@ const Tooltip = styled.div`
     color: rgb(255, 255, 255);
     border: 0;
     padding: 2px;
-    border-radius: 3px;
+    border-radius: 5px;
     background: rgba(255, 255, 255, 0.2);
     width: calc(100% - 4px);
+    resize: none;
+  }
+  .toolbar {
+    display: flex;
+    flex-direction: row;
+    align-items: stretch;
+    width: 100%;
+  }
+`;
+
+const Button = styled.button`
+  background: rgba(0, 0, 0, 0.5);
+  color: rgb(255, 255, 255);
+  border: 1px solid rgba(255, 255, 255, 0.4);
+  border-radius: 5px;
+  margin: 2px 2px 0 0;
+  padding: 2px 5px;
+  appearance: none;
+  font-size: 10px;
+  flex: 1;
+  &:hover {
+    background: rgba(0, 0, 0, 1);
   }
 `;
 
@@ -64,14 +86,25 @@ const Marker = ({
   id,
   message,
   setMessage,
-  removeMarker
+  removeMarker,
+  pinned,
+  togglePin
 }) => {
   const [mode, setMode] = useState('hide');
   const [toolTip, setTooltip] = useState(message);
   const isEdit = mode === 'edit';
   const isView = mode === 'view';
   const isHide = mode === 'hide';
-  const tooltipRef = React.createRef();
+  const isShowing = isView || (isHide && pinned);
+  const tooltipRef = useRef();
+  const textFieldRef = useRef();
+  useEffect(() => {
+    if (isEdit && textFieldRef && textFieldRef.current) {
+      textFieldRef.current.style.height = '0px';
+      const scrollHeight = textFieldRef.current.scrollHeight;
+      textFieldRef.current.style.height = scrollHeight + 'px';
+    }
+  }, [toolTip, isEdit]);
   return (
     <Mark
       style={{
@@ -79,20 +112,12 @@ const Marker = ({
         left: `${xPercent}%`,
         height: `${space}px`,
         width: `${space}px`,
-        ...(isEdit ? { zIndex: 3 } : {})
+        ...(isEdit || isShowing
+          ? { zIndex: 3, borderRadius: '5px 0 0 5px' }
+          : {})
       }}
       onMouseEnter={() => {
         if (isHide) setMode('view');
-      }}
-      onClick={(e) => {
-        const hasTooltip = tooltipRef && tooltipRef.current;
-        const isTooltip = hasTooltip && tooltipRef.current.contains(e.target);
-        if (isView) {
-          setMode('edit');
-        } else if (!isTooltip) {
-          setMessage({ message: toolTip, id });
-          setMode('view');
-        }
       }}
       onMouseLeave={() => {
         if (mode === 'view') {
@@ -104,15 +129,43 @@ const Marker = ({
       {isEdit ? (
         <Tooltip ref={tooltipRef}>
           <textarea
+            ref={textFieldRef}
             placeholder="Add a note..."
             value={toolTip}
             onChange={(e) => setTooltip(e.target.value)}
           />
-          <button onClick={() => removeMarker(id)}>Remove</button>
+          <div className="toolbar">
+            <Button
+              onClick={() => {
+                setMessage({ message: toolTip, id });
+                setMode('view');
+              }}
+            >
+              Save
+            </Button>
+            <Button
+              onClick={() => {
+                setTooltip(message);
+                setMode('view');
+              }}
+            >
+              Cancel
+            </Button>
+            <Button onClick={() => togglePin(id)}>
+              {pinned ? 'Unpin' : 'Pin'}
+            </Button>
+            <Button onClick={() => removeMarker(id)}>Remove</Button>
+          </div>
         </Tooltip>
-      ) : isView ? (
-        <Tooltip>
-          <p>{toolTip || 'Click on marker to edit'}</p>
+      ) : isShowing ? (
+        <Tooltip
+          onClick={(e) => {
+            if (isView) {
+              setMode('edit');
+            }
+          }}
+        >
+          <p>{toolTip || 'Click on this message to edit'}</p>
         </Tooltip>
       ) : null}
     </Mark>

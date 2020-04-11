@@ -82,6 +82,11 @@ const Tater = ({ children: child, options = {} }) => {
     newMarkers[id].message = message;
     setMarkers(newMarkers);
   };
+  const togglePin = (id) => {
+    const newMarkers = { ...markers };
+    newMarkers[id].pinned = !markers[id].pinned;
+    setMarkers(newMarkers);
+  };
   const removeMarker = (id) => {
     const newMarkers = { ...markers };
     delete newMarkers[id];
@@ -99,6 +104,7 @@ const Tater = ({ children: child, options = {} }) => {
             {...markers[id]}
             setMessage={(msg) => setMessage(msg)}
             removeMarker={(id) => removeMarker(id)}
+            togglePin={(id) => togglePin(id)}
           />
         );
       })}
