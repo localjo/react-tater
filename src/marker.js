@@ -1,4 +1,4 @@
-import React, { useState, useRef, useEffect } from 'react';
+import React, { useRef, useEffect, useReducer } from 'react';
 import styled from 'styled-components';
 import emojis from './emojis';
 
@@ -25,7 +25,6 @@ const Icon = styled.div`
   bottom: 0;
   left: 0;
   right: 0;
-  pointer-events: none;
   user-select: none;
 `;
 
@@ -100,15 +99,62 @@ const Marker = ({
   isPinned,
   togglePin
 }) => {
-  const [marker, setMarker] = useState({
+  const reducer = (state, { type, payload }) => {
+    const newState = { ...state };
+    switch (type) {
+      case 'hover':
+        return { ...newState, isHover: payload };
+      case 'blur':
+        const { isEdit, isIconPicker, ...remaining } = newState;
+        return {
+          ...remaining,
+          isBlurred: true,
+          unBlur: { isEdit, isIconPicker },
+          ...(isEdit ? { tooltip: message } : {})
+        };
+      case 'change':
+        return { ...newState, tooltip: payload };
+      case 'edit':
+        return {
+          ...newState,
+          isBlurred: false,
+          unBlur: {},
+          isEdit: payload === 'open',
+          isHover: payload === 'open',
+          isDraggable: payload !== 'open',
+          ...(payload === 'cancel' ? { tooltip: message } : {})
+        };
+      case 'icon':
+        return {
+          ...newState,
+          isBlurred: false,
+          unBlur: {},
+          isIconPicker: payload,
+          isEdit: false
+        };
+      default:
+        return newState;
+    }
+  };
+  const [marker, dispatch] = useReducer(reducer, {
     isHover: false,
     isEdit: false,
     isIconPicker: false,
     isDraggable: true,
+    isBlurred: false,
+    unBlur: {},
     tooltip: message
   });
-  const { isHover, isEdit, isIconPicker, isDraggable, tooltip } = marker;
-  const isView = (isHover || isPinned) && (!isEdit || !isIconPicker);
+  const {
+    isHover,
+    isEdit,
+    isIconPicker,
+    isDraggable,
+    isBlurred,
+    tooltip,
+    unBlur = {}
+  } = marker;
+  const isView = (isHover || isPinned) && !isEdit && !isIconPicker;
   const tooltipRef = useRef();
   const textFieldRef = useRef();
   useEffect(() => {
@@ -121,7 +167,7 @@ const Marker = ({
   }, [tooltip, isEdit, isIconPicker]);
   return (
     <Mark
-      draggable={isDraggable}
+      draggable={isDraggable} // draggable breaks textboxes in Firefox, so toggle off while editing
       style={{
         top: `${yPercent}%`,
         left: `${xPercent}%`,
@@ -133,16 +179,30 @@ const Marker = ({
         e.dataTransfer.dropEffect = 'move';
         e.dataTransfer.setData('application/tater', id);
       }}
-      onMouseEnter={() => setMarker({ ...marker, isHover: true })}
-      onMouseLeave={() => setMarker({ ...marker, isHover: false })}
-      onClick={(e) => {
-        isEdit
-          ? setMarker({ ...marker, isIconPicker: true })
-          : setMarker({ ...marker, isEdit: true });
-        e.stopPropagation();
+      onMouseEnter={() => dispatch({ type: 'hover', payload: true })}
+      onMouseLeave={() => dispatch({ type: 'hover', payload: false })}
+      onBlur={() => {
+        setTimeout(() => {
+          // Wait before dispatching blur so clicks on removed elements are handled
+          dispatch({ type: 'blur', payload: tooltip });
+        }, 200);
       }}
     >
-      <Icon style={{ fontSize: `${space - 4}px` }}>
+      <Icon
+        style={{ fontSize: `${space - 4}px` }}
+        onClick={() => {
+          const trueEdit = isBlurred ? unBlur.isEdit : isEdit;
+          const trueIcon = isBlurred ? unBlur.isIconPicker : isIconPicker;
+          if (trueEdit || trueIcon) {
+            setTimeout(() => {
+              // Wait for blur to complete so this change doesn't get overwritten
+              dispatch({ type: 'icon', payload: !trueIcon });
+            }, 200);
+          } else {
+            dispatch({ type: 'edit', payload: 'open' });
+          }
+        }}
+      >
         {String.fromCodePoint(...icon)}
       </Icon>
       {isEdit && !isIconPicker ? (
@@ -151,55 +211,37 @@ const Marker = ({
             ref={textFieldRef}
             placeholder="Add a note..."
             value={marker.tooltip}
-            onFocus={() => setMarker({ ...marker, isDraggable: false })}
-            onBlur={() => setMarker({ ...marker, isDraggable: true })}
-            onChange={(e) => setMarker({ ...marker, tooltip: e.target.value })}
+            onChange={(e) =>
+              dispatch({ type: 'change', payload: e.target.value })
+            }
           />
           <div className="toolbar">
             <Button
-              onClick={(e) => {
+              onClick={() => {
                 setMessage({ message: marker.tooltip, id });
-                setMarker({ ...marker, isEdit: false });
-                e.stopPropagation();
+                dispatch({ type: 'edit', payload: 'save' });
               }}
             >
               Save
             </Button>
             <Button
-              onClick={(e) => {
-                setMarker({ ...marker, message });
-                setMarker({ ...marker, isEdit: false });
-                e.stopPropagation();
-              }}
+              onClick={() => dispatch({ type: 'edit', payload: 'cancel' })}
             >
               Cancel
             </Button>
             <Button
-              onClick={(e) => {
+              onClick={() => {
                 togglePin(id);
-                setMarker({ ...marker, isEdit: false, isHover: !isPinned });
-                e.stopPropagation();
+                dispatch({ type: 'edit', payload: 'cancel' });
               }}
             >
               {isPinned ? 'Unpin' : 'Pin'}
             </Button>
-            <Button
-              onClick={(e) => {
-                removeMarker(id);
-                e.stopPropagation();
-              }}
-            >
-              Remove
-            </Button>
+            <Button onClick={() => removeMarker(id)}>Remove</Button>
           </div>
         </Tooltip>
       ) : isView ? (
-        <Tooltip
-          onClick={(e) => {
-            setMarker({ ...marker, isEdit: true });
-            e.stopPropagation();
-          }}
-        >
+        <Tooltip onClick={() => dispatch({ type: 'edit', payload: 'open' })}>
           <p>{marker.tooltip || 'Click to add a message'}</p>
         </Tooltip>
       ) : isIconPicker ? (
@@ -208,10 +250,9 @@ const Marker = ({
             {emojis.map((emoji) => (
               <span
                 key={emoji.name}
-                onClick={(e) => {
+                onClick={() => {
                   setMarkerIcon(id, emoji.code);
-                  setMarker({ ...marker, isIconPicker: false });
-                  e.stopPropagation();
+                  dispatch({ type: 'icon', payload: false });
                 }}
                 className="emoji"
                 style={{ fontSize: `${space - 4}px` }}
@@ -219,6 +260,16 @@ const Marker = ({
                 {String.fromCodePoint(...emoji.code)}
               </span>
             ))}
+            <textarea // This is a hack to trigger onBlur when a user clicks outside of the tooltip
+              autoFocus
+              style={{
+                appearance: 'none',
+                background: 'none',
+                border: 0,
+                height: '0px',
+                width: '0px'
+              }}
+            />
           </p>
         </Tooltip>
       ) : null}
