@@ -138,7 +138,7 @@ const Marker = ({
   };
   const [marker, dispatch] = useReducer(reducer, {
     isHover: false,
-    isEdit: false,
+    isEdit: !message,
     isIconPicker: false,
     isDraggable: true,
     isBlurred: false,
