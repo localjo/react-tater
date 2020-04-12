@@ -1,6 +1,6 @@
 {
   "name": "react-tater",
-  "version": "2.0.0",
+  "version": "2.0.1",
   "description": "A React component to add annotations to any element on a page",
   "author": "Jo Sprague <josiah.sprague@gmail.com>",
   "license": "MIT",
