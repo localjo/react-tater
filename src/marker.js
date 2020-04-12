@@ -97,17 +97,18 @@ const Marker = ({
   setMessage,
   setMarkerIcon,
   removeMarker,
-  pinned,
+  isPinned,
   togglePin
 }) => {
-  const [mode, setMode] = useState('hide');
-  const [toolTip, setTooltip] = useState(message);
-  const [isDraggable, toggleDraggable] = useState(true);
-  const isEdit = mode === 'edit';
-  const isView = mode === 'view';
-  const isHide = mode === 'hide';
-  const isIconPicker = mode === 'icon';
-  const isShowing = isView || (isHide && pinned);
+  const [marker, setMarker] = useState({
+    isHover: false,
+    isEdit: false,
+    isIconPicker: false,
+    isDraggable: true,
+    tooltip: message
+  });
+  const { isHover, isEdit, isIconPicker, isDraggable, tooltip } = marker;
+  const isView = (isHover || isPinned) && (!isEdit || !isIconPicker);
   const tooltipRef = useRef();
   const textFieldRef = useRef();
   useEffect(() => {
@@ -117,8 +118,7 @@ const Marker = ({
       textFieldRef.current.style.height = scrollHeight + 'px';
       textFieldRef.current.focus();
     }
-  }, [toolTip, isEdit]);
-  const iconCharacter = String.fromCodePoint(...icon);
+  }, [tooltip, isEdit, isIconPicker]);
   return (
     <Mark
       draggable={isDraggable}
@@ -127,44 +127,39 @@ const Marker = ({
         left: `${xPercent}%`,
         height: `${space}px`,
         width: `${space}px`,
-        ...(isEdit || isShowing ? { zIndex: 3 } : {})
+        zIndex: isHover ? 5 : isEdit || isIconPicker ? 4 : isPinned ? 3 : 2
       }}
       onDragStart={(e) => {
         e.dataTransfer.dropEffect = 'move';
         e.dataTransfer.setData('application/tater', id);
       }}
-      onMouseEnter={() => {
-        if (isHide) setMode('view');
-      }}
-      onMouseLeave={() => {
-        if (isView) setMode('hide');
-      }}
+      onMouseEnter={() => setMarker({ ...marker, isHover: true })}
+      onMouseLeave={() => setMarker({ ...marker, isHover: false })}
       onClick={(e) => {
-        setMode(isIconPicker ? 'hide' : 'icon');
+        isEdit
+          ? setMarker({ ...marker, isIconPicker: true })
+          : setMarker({ ...marker, isEdit: true });
         e.stopPropagation();
       }}
     >
-      <Icon style={{ fontSize: `${space - 4}px` }}>{iconCharacter}</Icon>
-      {isEdit ? (
-        <Tooltip
-          ref={tooltipRef}
-          onClick={(e) => {
-            e.stopPropagation();
-          }}
-        >
+      <Icon style={{ fontSize: `${space - 4}px` }}>
+        {String.fromCodePoint(...icon)}
+      </Icon>
+      {isEdit && !isIconPicker ? (
+        <Tooltip ref={tooltipRef}>
           <textarea
             ref={textFieldRef}
             placeholder="Add a note..."
-            value={toolTip}
-            onFocus={(e) => toggleDraggable(false)}
-            onBlur={(e) => toggleDraggable(true)}
-            onChange={(e) => setTooltip(e.target.value)}
+            value={marker.tooltip}
+            onFocus={() => setMarker({ ...marker, isDraggable: false })}
+            onBlur={() => setMarker({ ...marker, isDraggable: true })}
+            onChange={(e) => setMarker({ ...marker, tooltip: e.target.value })}
           />
           <div className="toolbar">
             <Button
               onClick={(e) => {
-                setMessage({ message: toolTip, id });
-                setMode('view');
+                setMessage({ message: marker.tooltip, id });
+                setMarker({ ...marker, isEdit: false });
                 e.stopPropagation();
               }}
             >
@@ -172,8 +167,8 @@ const Marker = ({
             </Button>
             <Button
               onClick={(e) => {
-                setTooltip(message);
-                setMode('view');
+                setMarker({ ...marker, message });
+                setMarker({ ...marker, isEdit: false });
                 e.stopPropagation();
               }}
             >
@@ -182,10 +177,11 @@ const Marker = ({
             <Button
               onClick={(e) => {
                 togglePin(id);
+                setMarker({ ...marker, isEdit: false, isHover: !isPinned });
                 e.stopPropagation();
               }}
             >
-              {pinned ? 'Unpin' : 'Pin'}
+              {isPinned ? 'Unpin' : 'Pin'}
             </Button>
             <Button
               onClick={(e) => {
@@ -197,28 +193,25 @@ const Marker = ({
             </Button>
           </div>
         </Tooltip>
-      ) : isShowing ? (
+      ) : isView ? (
         <Tooltip
           onClick={(e) => {
-            setMode('edit');
+            setMarker({ ...marker, isEdit: true });
             e.stopPropagation();
           }}
         >
-          <p>{toolTip || 'Click on this message to edit'}</p>
+          <p>{marker.tooltip || 'Click to add a message'}</p>
         </Tooltip>
       ) : isIconPicker ? (
-        <Tooltip
-          onClick={(e) => {
-            setMode('hide');
-            e.stopPropagation();
-          }}
-        >
+        <Tooltip>
           <p style={{ textAlign: 'center', cursor: 'pointer' }}>
             {emojis.map((emoji) => (
               <span
                 key={emoji.name}
                 onClick={(e) => {
                   setMarkerIcon(id, emoji.code);
+                  setMarker({ ...marker, isIconPicker: false });
+                  e.stopPropagation();
                 }}
                 className="emoji"
                 style={{ fontSize: `${space - 4}px` }}

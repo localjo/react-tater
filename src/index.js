@@ -113,7 +113,7 @@ const Tater = ({ children: child, options = {} }) => {
   };
   const togglePin = (id) => {
     const newMarkers = { ...markers };
-    newMarkers[id].pinned = !markers[id].pinned;
+    newMarkers[id].isPinned = !markers[id].isPinned;
     setMarkers(newMarkers);
   };
   const removeMarker = (id) => {
