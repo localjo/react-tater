@@ -234,7 +234,8 @@ const Marker = ({
             <Button
               onClick={() => {
                 togglePin(id);
-                dispatch({ type: 'edit', payload: 'cancel' });
+                setMessage({ message: marker.tooltip, id });
+                dispatch({ type: 'edit', payload: 'save' });
               }}
             >
               {isPinned ? 'Unpin' : 'Pin'}
