@@ -7,6 +7,7 @@ const Mark = styled.div`
   position: absolute;
   transform: translateX(-50%) translateY(-50%);
   z-index: 2;
+  padding-right: 10px;
   font-family: 'Helvetica', sans-serif;
   font-size: 14px;
   text-align: left;
@@ -36,7 +37,7 @@ const Tooltip = styled.div`
   display: block;
   position: absolute;
   top: 0;
-  left: 100%;
+  left: calc(100% - 1px);
   color: rgb(255, 255, 255);
   cursor: default;
   p {
