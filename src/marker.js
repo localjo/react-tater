@@ -111,6 +111,7 @@ const Marker = ({
           ...remaining,
           isBlurred: true,
           unBlur: { isEdit, isIconPicker },
+          isDraggable: true,
           ...(isEdit ? { tooltip: message } : {})
         };
       case 'change':
@@ -185,7 +186,7 @@ const Marker = ({
       onBlur={() => {
         setTimeout(() => {
           // Wait before dispatching blur so clicks on removed elements are handled
-          dispatch({ type: 'blur', payload: tooltip });
+          dispatch({ type: 'blur' });
         }, 200);
       }}
     >
