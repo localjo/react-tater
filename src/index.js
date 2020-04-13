@@ -32,7 +32,7 @@ const Tater = ({ children: child, options = {} }) => {
   if (Array.isArray(child)) {
     throw new Error('Tater only supports wrapping a single element');
   }
-  const { name, space = 15 } = options;
+  const { name, space = 30 } = options;
   const ns = name || child.type.displayName;
   const [markers, setMarkers] = useLocalStorage(`${ns}-markers`, {});
   // Adding grid-visible:true to local storage makes grid visible for debug
