@@ -35,14 +35,19 @@ const App = () => (
 
 ## Development
 
-To develop locally, first symlink this package to an example project:
+If you want to make changes to this library in a local development environment,
+first you need to symlink some packages:
 
 ```bash
-cd react-tater && yarn link
+cd ../example-app/node_modules/react && yarn link
+cd react-tater && yarn link && yarn link react
 cd ../example-app && yarn link react-tater
 ```
 
-To start the dev server which will build the module and watch for changes to
+This allows you to see changes to this package immediately in your example app
+and prevents the example app from seeing more than one copy of React.
+
+Then start the dev server which will build the module and watch for changes to
 automatically rebuild:
 
 ```bash
