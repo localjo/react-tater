@@ -3,6 +3,7 @@
 > A React component to add annotations to any element on a page
 
 ![Screenshot](./screenshot.png)
+[![FOSSA Status](https://app.fossa.io/api/projects/git%2Bgithub.com%2Flocaljo%2Freact-tater.svg?type=shield)](https://app.fossa.io/projects/git%2Bgithub.com%2Flocaljo%2Freact-tater?ref=badge_shield)
 
 [![NPM](https://img.shields.io/npm/v/react-tater.svg)](https://www.npmjs.com/package/react-tater)
 
@@ -67,3 +68,7 @@ Or:
 ```bash
 cd react-tater && yarn test:watch
 ```
+
+
+## License
+[![FOSSA Status](https://app.fossa.io/api/projects/git%2Bgithub.com%2Flocaljo%2Freact-tater.svg?type=large)](https://app.fossa.io/projects/git%2Bgithub.com%2Flocaljo%2Freact-tater?ref=badge_large)
