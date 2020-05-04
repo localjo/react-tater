@@ -8,13 +8,15 @@
   "main": "dist/index.js",
   "module": "dist/index.modern.js",
   "source": "src/index.js",
+  "types": "dist/index.d.ts",
   "engines": {
     "node": ">=10"
   },
   "scripts": {
     "build": "microbundle-crl --no-compress --format modern,cjs",
     "start": "microbundle-crl watch --no-compress --format modern,cjs",
-    "prepublish": "run-s build",
+    "typings": "cp src/index.d.ts dist/index.d.ts",
+    "prepublish": "run-s build typings",
     "test": "run-s test:unit test:lint test:build",
     "test:build": "run-s build",
     "test:lint": "eslint .",
