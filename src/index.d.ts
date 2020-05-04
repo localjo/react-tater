@@ -4,9 +4,10 @@ declare module 'react-tater' {
   interface ReactTaterProps {
     name?: string
     space?: number
+    children: React.Element
   }
 
-  const Tater: (props: ReactTaterProps) => React.SFC<ReactTaterProps>
+  const Tater: (props: ReactTaterProps) => ReactElement<ReactTaterProps>
 
   export default Tater
 }
