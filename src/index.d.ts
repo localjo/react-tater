@@ -1,4 +1,4 @@
-import { ReactNode } from 'react';
+import { ReactElement } from 'react';
 
 interface TaterOptions {
   name?: string;
@@ -7,7 +7,7 @@ interface TaterOptions {
 
 interface TaterProps {
   options?: TaterOptions;
-  children: ReactNode;
+  children: ReactElement;
 }
 
 declare const Tater: (props: TaterProps) => JSX.Element;
