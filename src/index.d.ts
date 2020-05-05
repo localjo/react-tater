@@ -14,5 +14,5 @@ declare const Tater: (props: TaterProps) => JSX.Element;
 
 export default Tater;
 
-export { TaterProps, TaterOptions };
+export { TaterProps };
 
