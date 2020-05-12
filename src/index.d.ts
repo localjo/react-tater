@@ -1,13 +1,18 @@
-declare module 'react-tater' {
-  import React from 'react';
+import { ReactElement } from 'react';
 
-  interface ReactTaterProps {
-    name?: string
-    space?: number
-    children: React.Element
-  }
-
-  const Tater: (props: ReactTaterProps) => ReactElement<ReactTaterProps>
-
-  export default Tater
+interface TaterOptions {
+  name?: string;
+  space?: number;
 }
+
+interface TaterProps {
+  options?: TaterOptions;
+  children: ReactElement;
+}
+
+declare const Tater: (props: TaterProps) => JSX.Element;
+
+export default Tater;
+
+export { TaterProps };
+
